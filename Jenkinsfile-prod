@@ -10,11 +10,11 @@ pipeline {
 
     stage('Approval') {
       steps {
-        input message: 'Approve deployment to PROD (OKE)?'
+        input message: 'Approve deployment to PROD?'
       }
     }
 
-    stage('Get DEV Image Tag') {
+    stage('Read DEV Image Tag') {
       steps {
         script {
           IMAGE_TAG = sh(
@@ -28,15 +28,17 @@ pipeline {
     stage('Deploy to PROD') {
       steps {
         sh """
-        sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/prod/deployment.yaml | \
-        kubectl --context ${KUBE_CTX} apply -f -
+          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/prod/deployment.yaml | \
+          kubectl --context ${KUBE_CTX} apply -f -
         """
       }
     }
 
-    stage('Save PROD Image Tag') {
+    stage('Verify Deployment') {
       steps {
-        sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-prod-image.txt"
+        sh """
+          kubectl --context ${KUBE_CTX} rollout status deployment/msil-demo -n prod
+        """
       }
     }
   }
