@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msil-demo
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msil-demo
+  template:
+    metadata:
+      labels:
+        app: msil-demo
+    spec:
+      containers:
+      - name: msil-demo
+        image: sahil867/msil-demo-repo:IMAGE_TAG
+        ports:
+        - containerPort: 80

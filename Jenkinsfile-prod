@@ -1,0 +1,43 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "sahil867/msil-demo-repo"
+    KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+  }
+
+  stages {
+
+    stage('Approval') {
+      steps {
+        input message: 'Approve deployment to PROD (OKE)?'
+      }
+    }
+
+    stage('Get DEV Image Tag') {
+      steps {
+        script {
+          IMAGE_TAG = sh(
+            script: "cat /var/lib/jenkins/last-dev-image.txt",
+            returnStdout: true
+          ).trim()
+        }
+      }
+    }
+
+    stage('Deploy to PROD') {
+      steps {
+        sh """
+        sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/prod/deployment.yaml | \
+        kubectl --context ${KUBE_CTX} apply -f -
+        """
+      }
+    }
+
+    stage('Save PROD Image Tag') {
+      steps {
+        sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-prod-image.txt"
+      }
+    }
+  }
+}

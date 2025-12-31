@@ -1,0 +1,35 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "sahil867/msil-demo-repo"
+    KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+  }
+
+  stages {
+
+    stage('Approval for Rollback') {
+      steps {
+        input message: 'Approve PROD rollback?'
+      }
+    }
+
+    stage('Rollback Deployment') {
+      steps {
+        sh """
+        kubectl --context ${KUBE_CTX} \
+        rollout undo deployment/msil-demo -n prod
+        """
+      }
+    }
+
+    stage('Verify Rollback') {
+      steps {
+        sh """
+        kubectl --context ${KUBE_CTX} \
+        rollout status deployment/msil-demo -n prod
+        """
+      }
+    }
+  }
+}
