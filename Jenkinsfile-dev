@@ -1,59 +1,53 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        IMAGE_NAME = "sahil867/msil-demo-repo"
-        IMAGE_TAG  = "${BUILD_NUMBER}"
-        KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+  environment {
+    IMAGE_NAME = "sahil867/msil-demo-repo"
+    IMAGE_TAG  = "${BUILD_NUMBER}"
+    KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+  }
+
+  stages {
+
+    stage('Docker Login') {
+      steps {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'dockerhub-creds',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+          )
+        ]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        }
+      }
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/Sahil-401/MSIL-demo-repo.git'
-            }
-        }
-
-        stage('Docker Login') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-creds',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f docker/Dockerfile ."
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-            }
-        }
-
-        stage('Deploy to DEV') {
-            steps {
-                sh """
-                    sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml | \
-                    kubectl --context ${KUBE_CTX} apply -f -
-                """
-            }
-        }
-
-        stage('Save Image Tag for PROD') {
-            steps {
-                sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt"
-            }
-        }
+    stage('Build Docker Image') {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f docker/Dockerfile ."
+      }
     }
+
+    stage('Push Docker Image') {
+      steps {
+        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+      }
+    }
+
+    stage('Deploy to DEV') {
+      steps {
+        sh """
+          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml | \
+          kubectl --context ${KUBE_CTX} apply -f -
+        """
+      }
+    }
+
+    stage('Save Image Tag for PROD') {
+      steps {
+        sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt"
+      }
+    }
+  }
 }
