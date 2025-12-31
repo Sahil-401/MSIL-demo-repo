@@ -25,12 +25,10 @@ metadata:
   name: msil-demo-service
   namespace: dev
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: msil-demo
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30080
-
+      port: 80        # Service port
+      targetPort: 80  # Container port
