@@ -4,20 +4,21 @@ pipeline {
   environment {
     IMAGE_NAME = "sahil867/msil-demo-repo"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+    PROD_NS    = "prod"
   }
 
   stages {
 
-    stage('Approval') {
+    stage('Approval to Deploy to PROD') {
       steps {
         input message: 'Approve deployment to PROD?'
       }
     }
 
-    stage('Read DEV Image Tag') {
+    stage('Read Last DEV Image Tag') {
       steps {
         script {
-          IMAGE_TAG = sh(
+          env.IMAGE_TAG = sh(
             script: "cat /var/lib/jenkins/last-dev-image.txt",
             returnStdout: true
           ).trim()
@@ -28,16 +29,18 @@ pipeline {
     stage('Deploy to PROD') {
       steps {
         sh """
-          sed 's/IMAGE_TAG/${IMAGE_TAG}xyz/g' k8s/prod/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} apply -f -
+          sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/prod/deployment.yaml | \
+          kubectl --context ${KUBE_CTX} -n ${PROD_NS} apply -f -
+
+          kubectl --context ${KUBE_CTX} -n ${PROD_NS} apply -f k8s/prod/service-nodeport.yaml
         """
       }
     }
 
-    stage('Verify Deployment') {
+    stage('Verify PROD Deployment') {
       steps {
         sh """
-          kubectl --context ${KUBE_CTX} rollout status deployment/msil-demo -n prod
+          kubectl --context ${KUBE_CTX} -n ${PROD_NS} rollout status deployment/hello-nginx
         """
       }
     }
