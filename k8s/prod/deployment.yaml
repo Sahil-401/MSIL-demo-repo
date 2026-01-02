@@ -16,6 +16,7 @@ spec:
       containers:
         - name: demo-app
           image: sahil867/msil-demo-repo:IMAGE_TAG
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
