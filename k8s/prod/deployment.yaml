@@ -16,5 +16,6 @@ spec:
       containers:
         - name: hello-nginx
           image: sahil867/msil-demo-repo:IMAGE_TAG
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
