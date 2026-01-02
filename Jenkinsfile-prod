@@ -21,8 +21,6 @@ pipeline {
             script: "cat /var/lib/jenkins/last-dev-image.txt",
             returnStdout: true
           ).trim()
-
-          echo "Promoting image tag: ${IMAGE_TAG}"
         }
       }
     }
@@ -30,9 +28,8 @@ pipeline {
     stage('Deploy to PROD') {
       steps {
         sh """
-          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/prod/deployment.yaml > /tmp/prod-deploy.yaml
-
-          kubectl --context ${KUBE_CTX} -n prod apply -f /tmp/prod-deploy.yaml
+          sed 's/IMAGE_TAG/${IMAGE_TAG}xyz/g' k8s/prod/deployment.yaml | \
+          kubectl --context ${KUBE_CTX} apply -f -
         """
       }
     }
@@ -40,7 +37,7 @@ pipeline {
     stage('Verify Deployment') {
       steps {
         sh """
-          kubectl --context ${KUBE_CTX} -n prod rollout status deployment/demo-app
+          kubectl --context ${KUBE_CTX} rollout status deployment/msil-demo -n prod
         """
       }
     }
