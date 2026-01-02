@@ -2,10 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json .
+# Copy package.json from app folder
+COPY app/package.json .
+
 RUN npm install --production
 
-COPY app.js .
+# Copy application code
+COPY app/app.js .
+COPY app/index.html .
 
 EXPOSE 3000
 
