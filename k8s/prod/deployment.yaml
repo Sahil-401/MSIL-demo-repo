@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: msil-demo
-  namespace: prod
+  namespace: proddddddd
 spec:
   replicas: 2
   selector:
