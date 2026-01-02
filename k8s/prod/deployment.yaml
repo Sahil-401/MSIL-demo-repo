@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: msil-demo
-        image: sahil867/msil-demo-repo:IMAGE_TAG
+        image: sahil867234567/msil-demo-repo:IMAGE_TAG
         ports:
         - containerPort: 80
 ---
