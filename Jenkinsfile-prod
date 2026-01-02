@@ -40,7 +40,7 @@ pipeline {
     stage('Verify Deployment') {
       steps {
         sh """
-          kubectl --context ${KUBE_CTX} -n prod rollout status deployment/demo-app-prod
+          kubectl --context ${KUBE_CTX} -n prod rollout status deployment/demo-app
         """
       }
     }
