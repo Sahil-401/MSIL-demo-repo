@@ -5,11 +5,6 @@ pipeline {
     IMAGE_NAME = "sahil867/msil-demo-repo"
     IMAGE_TAG  = "${BUILD_NUMBER}"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
-
-    // Proxy (important)
-    HTTP_PROXY  = "http://10.115.208.19:80"
-    HTTPS_PROXY = "http://10.115.208.19:80"
-    NO_PROXY    = "localhost,127.0.0.1,.cluster.local"
   }
 
   stages {
@@ -23,32 +18,20 @@ pipeline {
             passwordVariable: 'DOCKER_PASS'
           )
         ]) {
-          sh '''
-            echo "$DOCKER_PASS" | docker login \
-              -u "$DOCKER_USER" \
-              --password-stdin
-          '''
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
       }
     }
 
-    stage('Build Docker Image (DEV)') {
+    stage('Build Docker Image') {
       steps {
-        sh '''
-          docker build \
-            -f docker/Dockerfile \
-            -t ${IMAGE_NAME}:${IMAGE_TAG} \
-            --build-arg HTTP_PROXY=${HTTP_PROXY} \
-            --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-            --build-arg NO_PROXY=${NO_PROXY} \
-            .
-        '''
+        sh 'docker build -f docker/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} .'
       }
     }
 
     stage('Push Docker Image') {
       steps {
-        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+        sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
       }
     }
 
@@ -56,14 +39,15 @@ pipeline {
       steps {
         sh '''
           sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/dev/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} -n dev apply -f -
+          kubectl --context ${KUBE_CTX} apply -f -
+          kubectl --context ${KUBE_CTX} apply -f k8s/dev/service-nodeport.yaml
         '''
       }
     }
 
     stage('Save Image Tag for PROD') {
       steps {
-        sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt"
+        sh 'echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt'
       }
     }
   }
