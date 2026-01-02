@@ -3,6 +3,8 @@ pipeline {
 
   environment {
     KUBE_CTX = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+    PROD_NS  = "prod"
+    APP_NAME = "hello-nginx"
   }
 
   stages {
@@ -16,7 +18,8 @@ pipeline {
     stage('Rollback') {
       steps {
         sh """
-          kubectl --context ${KUBE_CTX} rollout undo deployment/msil-demo -n prod
+          kubectl --context ${KUBE_CTX} -n ${PROD_NS} \
+            rollout undo deployment/${APP_NAME}
         """
       }
     }
@@ -24,7 +27,8 @@ pipeline {
     stage('Verify') {
       steps {
         sh """
-          kubectl --context ${KUBE_CTX} rollout status deployment/msil-demo -n prod
+          kubectl --context ${KUBE_CTX} -n ${PROD_NS} \
+            rollout status deployment/${APP_NAME}
         """
       }
     }
