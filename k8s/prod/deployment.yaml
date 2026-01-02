@@ -18,6 +18,7 @@ spec:
           image: sahil867/msil-demo-repo:IMAGE_TAG
           ports:
             - containerPort: 3000
+
 ---
 apiVersion: v1
 kind: Service
