@@ -5,6 +5,11 @@ pipeline {
     IMAGE_NAME = "sahil867/msil-demo-repo"
     IMAGE_TAG  = "${BUILD_NUMBER}"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+
+    // Proxy (important)
+    HTTP_PROXY  = "http://10.115.208.19:80"
+    HTTPS_PROXY = "http://10.115.208.19:80"
+    NO_PROXY    = "localhost,127.0.0.1,.cluster.local"
   }
 
   stages {
@@ -18,14 +23,26 @@ pipeline {
             passwordVariable: 'DOCKER_PASS'
           )
         ]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+          sh '''
+            echo "$DOCKER_PASS" | docker login \
+              -u "$DOCKER_USER" \
+              --password-stdin
+          '''
         }
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build Docker Image (DEV)') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f docker/Dockerfile ."
+        sh '''
+          docker build \
+            -f docker/Dockerfile \
+            -t ${IMAGE_NAME}:${IMAGE_TAG} \
+            --build-arg HTTP_PROXY=${HTTP_PROXY} \
+            --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+            --build-arg NO_PROXY=${NO_PROXY} \
+            .
+        '''
       }
     }
 
@@ -37,10 +54,10 @@ pipeline {
 
     stage('Deploy to DEV') {
       steps {
-        sh """
-          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} apply -f -
-        """
+        sh '''
+          sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/dev/deployment.yaml | \
+          kubectl --context ${KUBE_CTX} -n dev apply -f -
+        '''
       }
     }
 
