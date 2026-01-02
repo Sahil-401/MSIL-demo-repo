@@ -6,7 +6,6 @@ pipeline {
     IMAGE_TAG   = "${BUILD_NUMBER}"
     KUBE_CTX    = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
 
-    // Proxy is required ONLY for Docker build & push
     HTTP_PROXY  = "http://10.115.208.19:80"
     HTTPS_PROXY = "http://10.115.208.19:80"
     NO_PROXY    = "localhost,127.0.0.1"
