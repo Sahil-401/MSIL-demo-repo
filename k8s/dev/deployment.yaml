@@ -1,56 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-app
+  name: hello-nginx
   namespace: dev
-  labels:
-    app: hello-world-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: hello-world-app
+      app: hello-nginx
   template:
     metadata:
       labels:
-        app: hello-world-app
+        app: hello-nginx
     spec:
       containers:
-        - name: hello-world-app
-          image: sahil867/hello-world-app:latest   # replace if needed
-          imagePullPolicy: IfNotPresent
+        - name: hello-nginx
+          image: sahil867/msil-demo-repo:IMAGE_TAG
           ports:
-            - containerPort: 3000
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "300m"
-              memory: "256Mi"
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-world-service
+  name: hello-nginx-svc
   namespace: dev
 spec:
   type: NodePort
   selector:
-    app: hello-world-app
+    app: hello-nginx
   ports:
     - port: 80
-      targetPort: 3000
-      nodePort: 30080   # Optional (range 30000–32767)
+      targetPort: 80
+      nodePort: 30080  # Optional (range 30000–32767)
