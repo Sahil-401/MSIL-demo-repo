@@ -1,39 +1,57 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-app
+  name: hello-world-app
   namespace: prod
+  labels:
+    app: hello-world-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: demo-app
+      app: hello-world-app
   template:
     metadata:
       labels:
-        app: demo-app
+        app: hello-world-app
     spec:
       containers:
-        - name: demo-app
-          image: sahil867/msil-demo-repo:IMAGE_TAG
-          imagePullPolicy: Always
+        - name: hello-world-app
+          image: sahil867/hello-world-app:latest   # replace if needed
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
-          env:
-            - name: APP_ENV
-              value: "PROD"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: demo-app-nodeport
+  name: hello-world-service
   namespace: prod
 spec:
   type: NodePort
   selector:
-    app: demo-app
+    app: hello-world-app
   ports:
-    - name: http
-      port: 80
+    - port: 80
       targetPort: 3000
-      nodePort: 30081
+      nodePort: 30080   # Optional (range 30000–32767)
