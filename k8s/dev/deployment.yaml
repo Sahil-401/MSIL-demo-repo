@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: demo-app
-          image: sahil867/msil-demo-repo:DEV   # Jenkins will override tag
+          image: sahil867/msil-demo-repo:IMAGE_TAG
           ports:
             - containerPort: 3000
