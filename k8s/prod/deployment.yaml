@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-app
+  name: demo-app-prod
   namespace: prod
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: demo-app
+      app: demo-app-prod
   template:
     metadata:
       labels:
-        app: demo-app
+        app: demo-app-prod
     spec:
       containers:
-        - name: demo-app
+        - name: demo-app-prod
           image: sahil867/msil-demo-repo:IMAGE_TAG
           ports:
             - containerPort: 3000
@@ -38,4 +38,4 @@ spec:
       protocol: TCP
       port: 80          # Service port
       targetPort: 3000  # Container port
-      nodePort: 30090   # NodePort (optional but fixed)
+      nodePort: 30081   # NodePort (optional but fixed)
