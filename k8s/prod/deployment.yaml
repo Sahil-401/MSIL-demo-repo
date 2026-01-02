@@ -38,4 +38,3 @@ spec:
       protocol: TCP
       port: 80          # Service port
       targetPort: 3000  # Container port
-      nodePort: 30081   # NodePort (optional but fixed)
