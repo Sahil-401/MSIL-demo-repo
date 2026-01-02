@@ -11,42 +11,31 @@ pipeline {
 
     stage('Docker Login') {
       steps {
-        withCredentials([
-          usernamePassword(
-            credentialsId: 'dockerhub-creds',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-          )
-        ]) {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-creds',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build & Push Image') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f docker/Dockerfile ."
-      }
-    }
-
-    stage('Push Docker Image') {
-      steps {
-        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+        sh """
+        docker build -t $IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile .
+        docker push $IMAGE_NAME:$IMAGE_TAG
+        """
       }
     }
 
     stage('Deploy to DEV') {
       steps {
         sh """
-          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} apply -f -
+        kubectl --context $KUBE_CTX -n dev set image deployment/demo-app \
+        demo-app=$IMAGE_NAME:$IMAGE_TAG
         """
-      }
-    }
-
-    stage('Save Image Tag for PROD') {
-      steps {
-        sh "echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt"
       }
     }
   }
