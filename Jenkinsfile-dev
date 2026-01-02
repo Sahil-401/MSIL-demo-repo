@@ -6,6 +6,7 @@ pipeline {
     IMAGE_TAG   = "${BUILD_NUMBER}"
     KUBE_CTX    = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
 
+    // Proxy (USED ONLY FOR DOCKER)
     HTTP_PROXY  = "http://10.115.208.19:80"
     HTTPS_PROXY = "http://10.115.208.19:80"
     NO_PROXY    = "localhost,127.0.0.1"
@@ -30,6 +31,7 @@ pipeline {
     stage('Build & Push Image') {
       steps {
         sh """
+          echo "Using proxy for Docker build"
           echo "HTTP_PROXY=$HTTP_PROXY"
           echo "HTTPS_PROXY=$HTTPS_PROXY"
 
@@ -45,14 +47,15 @@ pipeline {
       }
     }
 
-
     stage('Deploy to DEV') {
       steps {
         sh """
-          env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \
-          -u ALL_PROXY -u all_proxy \
-          NO_PROXY=localhost,127.0.0.1,10.178.99.205 \
+          echo "Deploying to DEV (proxy DISABLED for kubectl)"
 
+          env -u HTTP_PROXY -u HTTPS_PROXY \
+              -u http_proxy -u https_proxy \
+              -u ALL_PROXY -u all_proxy \
+              NO_PROXY=localhost,127.0.0.1,10.178.99.205 \
           kubectl --context $KUBE_CTX -n dev set image deployment/demo-app \
           demo-app=$IMAGE_NAME:$IMAGE_TAG
         """
