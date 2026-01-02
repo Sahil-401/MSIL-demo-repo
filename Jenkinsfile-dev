@@ -6,7 +6,7 @@ pipeline {
     IMAGE_TAG   = "${BUILD_NUMBER}"
     KUBE_CTX    = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
 
-    // Proxy only for Docker
+    // Proxy is required ONLY for Docker build & push
     HTTP_PROXY  = "http://10.115.208.19:80"
     HTTPS_PROXY = "http://10.115.208.19:80"
     NO_PROXY    = "localhost,127.0.0.1"
@@ -44,8 +44,13 @@ pipeline {
     stage('Deploy to DEV') {
       steps {
         sh """
-          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} apply -f -
+          sed 's/IMAGE_TAG/${IMAGE_TAG}/g' k8s/dev/deployment.yaml > /tmp/dev-deploy.yaml
+
+          env -u HTTP_PROXY -u HTTPS_PROXY \
+              -u http_proxy -u https_proxy \
+              -u ALL_PROXY -u all_proxy \
+              NO_PROXY=localhost,127.0.0.1,10.178.99.205 \
+          kubectl --context ${KUBE_CTX} -n dev apply -f /tmp/dev-deploy.yaml
         """
       }
     }
