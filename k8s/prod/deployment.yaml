@@ -4,7 +4,7 @@ metadata:
   name: hello-nginx
   namespace: prod
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: hello-nginx
