@@ -45,9 +45,13 @@ pipeline {
       }
     }
 
+
     stage('Deploy to DEV') {
       steps {
         sh """
+          unset HTTP_PROXY HTTPS_PROXY
+          export NO_PROXY=localhost,127.0.0.1,10.0.0.0/8,.oraclecloud.com
+
           kubectl --context $KUBE_CTX -n dev set image deployment/demo-app \
           demo-app=$IMAGE_NAME:$IMAGE_TAG
         """
