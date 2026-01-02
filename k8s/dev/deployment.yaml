@@ -18,6 +18,9 @@ spec:
           image: sahil867/msil-demo-repo:IMAGE_TAG
           ports:
             - containerPort: 3000
+          env:
+            - name: APP_ENV
+              value: "DEV"
 ---
 apiVersion: v1
 kind: Service
