@@ -14,8 +14,17 @@ spec:
         app: hello-nginx
     spec:
       containers:
-        - name: hello-nginx
-          image: sahil867/msil-demo-repo:IMAGE_TAG
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 80
+      - name: hello-nginx
+        image: sahil867/msil-demo-repo:IMAGE_TAG
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+        # REQUIRED FOR HPA
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
