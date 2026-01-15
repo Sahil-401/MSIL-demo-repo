@@ -40,7 +40,6 @@ pipeline {
         sh '''
           sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/dev/deployment.yaml | \
           kubectl --context ${KUBE_CTX} apply -f -
-          kubectl --context ${KUBE_CTX} apply -f k8s/dev/service-nodeport.yaml
         '''
       }
     }
