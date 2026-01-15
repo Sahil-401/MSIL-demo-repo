@@ -42,7 +42,7 @@ spec:
   ports:
   - port: 80
     targetPort: 80
-    nodePort: 30099  
+    nodePort: 30091  
 
 ---
 apiVersion: autoscaling/v2
