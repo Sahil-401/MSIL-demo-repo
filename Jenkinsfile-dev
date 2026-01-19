@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "bom.ocir.io/oscemea00633/demo-app-repo"
+    IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
     IMAGE_TAG  = "${BUILD_NUMBER}"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
   }
