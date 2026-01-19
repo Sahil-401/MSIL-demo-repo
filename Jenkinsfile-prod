@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "sahil867/msil-demo-repo"
+    IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
     PROD_NS    = "prod-1"
   }
