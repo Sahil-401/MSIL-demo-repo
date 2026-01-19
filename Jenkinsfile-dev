@@ -2,23 +2,25 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "sahil867/msil-demo-repo"
+    IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
     IMAGE_TAG  = "${BUILD_NUMBER}"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
   }
 
   stages {
 
-    stage('Docker Login') {
+    stage('Docker Login to OCIR') {
       steps {
         withCredentials([
           usernamePassword(
-            credentialsId: 'dockerhub-creds',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
+            credentialsId: 'ocir-creds',
+            usernameVariable: 'OCIR_USER',
+            passwordVariable: 'OCIR_TOKEN'
           )
         ]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+          sh '''
+            echo "$OCIR_TOKEN" | docker login bom.ocir.io -u "$OCIR_USER" --password-stdin
+          '''
         }
       }
     }
