@@ -1,5 +1,12 @@
-FROM nginx:alpine
+#FROM nginx:alpine
+#COPY app/index.html /usr/share/nginx/html/index.html
+#EXPOSE 80
+FROM node:18-alpine
 
-COPY app/index.html /usr/share/nginx/html/index.html
+WORKDIR /app
 
-EXPOSE 80
+COPY server.js .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
