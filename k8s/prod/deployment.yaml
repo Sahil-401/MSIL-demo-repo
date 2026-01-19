@@ -49,7 +49,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: hello-nginx-hpa
-  namespace: prod-1
+  namespace: prod
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
