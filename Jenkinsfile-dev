@@ -52,4 +52,32 @@ pipeline {
       }
     }
   }
+
+  post {
+
+    failure {
+      slackSend(
+        color: "danger",
+        message: """
+❌ *Pipeline Failed*
+*Job:* ${JOB_NAME}
+*Build:* #${BUILD_NUMBER}
+*Image:* ${IMAGE_NAME}:${IMAGE_TAG}
+*URL:* ${BUILD_URL}
+"""
+      )
+    }
+
+    success {
+      slackSend(
+        color: "good",
+        message: """
+✅ *Pipeline Success*
+*Job:* ${JOB_NAME}
+*Build:* #${BUILD_NUMBER}
+*Image:* ${IMAGE_NAME}:${IMAGE_TAG}
+"""
+      )
+    }
+  }
 }
