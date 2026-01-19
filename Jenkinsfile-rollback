@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     KUBE_CTX = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
-    PROD_NS  = "prod-1"
+    PROD_NS  = "prod"
     APP_NAME = "hello-nginx"
   }
 
