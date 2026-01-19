@@ -4,7 +4,7 @@ pipeline {
   environment {
     IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
     KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
-    PROD_NS    = "prod-1"
+    PROD_NS    = "prod"
   }
 
   stages {
