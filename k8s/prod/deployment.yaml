@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: hello-nginx
-        image: sahil867/msil-demo-repo:IMAGE_TAG
+        image: bom.ocir.io/oscemea006/demo-app-repo:IMAGE_TAG
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -41,7 +41,7 @@ spec:
     app: hello-nginx
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 3000
     nodePort: 30091  
 
 ---
@@ -55,7 +55,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: hello-nginx
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 5
   metrics:
   - type: Resource
