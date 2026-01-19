@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-nginx
-  namespace: prod-1
+  namespace: prod
 spec:
   replicas: 1
   selector:
@@ -33,8 +33,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-nginx-nodeport
-  namespace: prod-1
+  name: hello-nginx-svc
+  namespace: prod
 spec:
   type: NodePort
   selector:
@@ -42,7 +42,7 @@ spec:
   ports:
   - port: 80
     targetPort: 3000
-    nodePort: 30091  
+    nodePort: 30081
 
 ---
 apiVersion: autoscaling/v2
