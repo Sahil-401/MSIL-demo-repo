@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-nginx
-  namespace: dev-1w
+  namespace: dev-1
 spec:
   replicas: 1
   selector:
