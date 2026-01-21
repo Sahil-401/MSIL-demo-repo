@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
 
     // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello from OC3 -v1\n");
+    res.end("Hello from OC3 -v2\n");
     return;
   }
 
