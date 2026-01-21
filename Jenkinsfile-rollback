@@ -2,7 +2,9 @@ pipeline {
   agent any
 
   environment {
-    KUBE_CTX = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+    // Both cluster contexts
+    KUBE_CONTEXTS = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu context-cc5umioz6da"
+
     PROD_NS  = "prod"
     APP_NAME = "hello-nginx"
   }
@@ -15,21 +17,43 @@ pipeline {
       }
     }
 
-    stage('Rollback') {
+    stage('Rollback (Both Clusters)') {
       steps {
-        sh """
-          kubectl --context ${KUBE_CTX} -n ${PROD_NS} \
-            rollout undo deployment/${APP_NAME}
-        """
+        sh '''
+          set -e
+
+          for CTX in ${KUBE_CONTEXTS}; do
+            echo "========================================="
+            echo "Rolling back on cluster: $CTX"
+            echo "Namespace: ${PROD_NS}"
+            echo "App: ${APP_NAME}"
+            echo "========================================="
+
+            kubectl --context $CTX -n ${PROD_NS} \
+              rollout undo deployment/${APP_NAME}
+
+            echo "Rollback triggered on $CTX"
+            echo ""
+          done
+        '''
       }
     }
 
-    stage('Verify') {
+    stage('Verify Rollback (Both Clusters)') {
       steps {
-        sh """
-          kubectl --context ${KUBE_CTX} -n ${PROD_NS} \
-            rollout status deployment/${APP_NAME}
-        """
+        sh '''
+          set -e
+
+          for CTX in ${KUBE_CONTEXTS}; do
+            echo "Verifying rollback on cluster: $CTX"
+
+            kubectl --context $CTX -n ${PROD_NS} \
+              rollout status deployment/${APP_NAME} --timeout=120s
+
+            echo "Rollback successful on $CTX"
+            echo ""
+          done
+        '''
       }
     }
   }
