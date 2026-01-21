@@ -2,9 +2,11 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
-    IMAGE_TAG  = "${BUILD_NUMBER}"
-    KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
+    IMAGE_NAME    = "bom.ocir.io/oscemea006/demo-app-repo"
+    IMAGE_TAG     = "${BUILD_NUMBER}"
+
+    // Both cluster contexts
+    KUBE_CONTEXTS = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu context-cc5umioz6da"
   }
 
   stages {
@@ -27,28 +29,45 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -f docker/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+        sh '''
+          docker build -f docker/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} .
+        '''
       }
     }
 
     stage('Push Docker Image') {
       steps {
-        sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
+        sh '''
+          docker push ${IMAGE_NAME}:${IMAGE_TAG}
+        '''
       }
     }
 
-    stage('Deploy to DEV') {
+    stage('Deploy to DEV (Both Clusters)') {
       steps {
         sh '''
-          sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/dev/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} apply -f -
+          set -e
+
+          for CTX in ${KUBE_CONTEXTS}; do
+            echo "========================================="
+            echo "Deploying to Kubernetes context: $CTX"
+            echo "========================================="
+
+            sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/dev/deployment.yaml | \
+            kubectl --context $CTX apply -f -
+
+            echo "Deployment completed for $CTX"
+            echo ""
+          done
         '''
       }
     }
 
     stage('Save Image Tag for PROD') {
       steps {
-        sh 'echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt'
+        sh '''
+          echo ${IMAGE_TAG} > /var/lib/jenkins/last-dev-image.txt
+        '''
       }
     }
   }
@@ -76,6 +95,7 @@ pipeline {
 *Job:* ${JOB_NAME}
 *Build:* #${BUILD_NUMBER}
 *Image:* ${IMAGE_NAME}:${IMAGE_TAG}
+*Clusters:* ${KUBE_CONTEXTS}
 """
       )
     }
