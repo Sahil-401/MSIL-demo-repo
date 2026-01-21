@@ -2,9 +2,12 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "bom.ocir.io/oscemea006/demo-app-repo"
-    KUBE_CTX   = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu"
-    PROD_NS    = "prod"
+    IMAGE_NAME    = "bom.ocir.io/oscemea006/demo-app-repo"
+
+    // Both cluster contexts
+    KUBE_CONTEXTS = "context-oke-amaaaaaaksfnvmaahftwc5deha4gq3zu context-cc5umioz6da"
+
+    PROD_NS = "prod"
   }
 
   stages {
@@ -26,20 +29,42 @@ pipeline {
       }
     }
 
-    stage('Deploy to PROD') {
+    stage('Deploy to PROD (Both Clusters)') {
       steps {
-        sh """
-          sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/prod/deployment.yaml | \
-          kubectl --context ${KUBE_CTX} -n ${PROD_NS} apply -f -
-        """
+        sh '''
+          set -e
+
+          for CTX in ${KUBE_CONTEXTS}; do
+            echo "========================================="
+            echo "Deploying to PROD on cluster: $CTX"
+            echo "Namespace: ${PROD_NS}"
+            echo "Image tag: ${IMAGE_TAG}"
+            echo "========================================="
+
+            sed "s/IMAGE_TAG/${IMAGE_TAG}/g" k8s/prod/deployment.yaml | \
+            kubectl --context $CTX -n ${PROD_NS} apply -f -
+
+            echo "Deployment completed for $CTX"
+            echo ""
+          done
+        '''
       }
     }
 
-    stage('Verify PROD Deployment') {
+    stage('Verify PROD Deployment (Both Clusters)') {
       steps {
-        sh """
-          kubectl --context ${KUBE_CTX} -n ${PROD_NS} rollout status deployment/hello-nginx
-        """
+        sh '''
+          set -e
+
+          for CTX in ${KUBE_CONTEXTS}; do
+            echo "Verifying rollout on cluster: $CTX"
+
+            kubectl --context $CTX -n ${PROD_NS} rollout status deployment/hello-nginx
+
+            echo "Rollout successful on $CTX"
+            echo ""
+          done
+        '''
       }
     }
   }
