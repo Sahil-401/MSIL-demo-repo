@@ -23,11 +23,11 @@ spec:
         # REQUIRED FOR HPA
         resources:
           requests:
-            cpu: "50m"
-            memory: "64Mi"
+            cpu: "900m"
+            memory: "950Mi"
           limits:
-            cpu: "200m"
-            memory: "128Mi"
+            cpu: "950m"
+            memory: "950Mi"
 
 ---
 apiVersion: v1
@@ -56,7 +56,7 @@ spec:
     kind: Deployment
     name: hello-nginx
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 18
   metrics:
   - type: Resource
     resource:
