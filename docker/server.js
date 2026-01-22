@@ -34,11 +34,11 @@ function burnOnRequest() {
 startStaticBurn();
 
 const server = http.createServer((req, res) => {
-  if (req.url === "/") {
+  if (req.url === "/app") {
     burnOnRequest();
 
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Static CPU + Request burst active\n");
+    res.end("Hi From APP-1\n");
     return;
   }
 
@@ -47,5 +47,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log("Hybrid CPU stress server running on port 3000");
+  console.log("Hybrid CPU stress server running on port 3000 (path: /app)");
 });
