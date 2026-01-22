@@ -1,6 +1,6 @@
 const http = require("http");
 
-const AUTO_BURN_MS = 500; // 250 ms background CPU load per request
+const AUTO_BURN_MS = 700; // 250 ms background CPU load per request
 
 function burnCPU(ms) {
   const end = Date.now() + ms;
@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
 
     // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello from OC3 -v2\n");
+    res.end("Hello from OC3 V1\n");
     return;
   }
 
