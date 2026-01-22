@@ -1,6 +1,6 @@
 const http = require("http");
 
-const AUTO_BURN_MS = 700; // 250 ms background CPU load per request
+const AUTO_BURN_MS = 1500; // 250 ms background CPU load per request
 
 function burnCPU(ms) {
   const end = Date.now() + ms;
