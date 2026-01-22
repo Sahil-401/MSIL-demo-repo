@@ -15,7 +15,7 @@ function burnCPU(ms) {
   }
 }
 
-// 🔁 Static background load (always running)
+// 🔁 Static background load
 function startStaticBurn() {
   function loop() {
     burnCPU(STATIC_BURN_MS);
@@ -24,23 +24,21 @@ function startStaticBurn() {
   loop();
 }
 
-// ⚡ Extra burst per request
+// ⚡ Request burst
 function burnOnRequest() {
-  setImmediate(() => {
-    burnCPU(REQUEST_BURN_MS);
-  });
+  setImmediate(() => burnCPU(REQUEST_BURN_MS));
 }
 
 startStaticBurn();
 
 const server = http.createServer((req, res) => {
 
-  // Accept both /app and /app/
+  // Works for both /app and /app/
   if (req.url === "/app" || req.url === "/app/") {
     burnOnRequest();
 
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Static CPU + Request burst active on---------- /app\n");
+    res.end("Static CPU + Request burst active on /app\n");
     return;
   }
 
