@@ -34,15 +34,17 @@ function burnOnRequest() {
 startStaticBurn();
 
 const server = http.createServer((req, res) => {
-  if (req.url === "/app") {
+
+  // Accept both /app and /app/
+  if (req.url === "/app" || req.url === "/app/") {
     burnOnRequest();
 
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hi From APP-1\n");
+    res.end("Hii From APP-1\n");
     return;
   }
 
-  res.writeHead(404);
+  res.writeHead(404, { "Content-Type": "text/plain" });
   res.end("Not found");
 });
 
