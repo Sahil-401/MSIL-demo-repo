@@ -40,7 +40,7 @@ const server = http.createServer((req, res) => {
     burnOnRequest();
 
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hii From APP-1\n");
+    res.end("Static CPU + Request burst active on---------- /app\n");
     return;
   }
 
