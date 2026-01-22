@@ -1,6 +1,11 @@
 const http = require("http");
 
-const AUTO_BURN_MS = 1500; // 250 ms background CPU load per request
+// ===== CONFIG =====
+const STATIC_BURN_MS = 900;     // background constant CPU burn
+const STATIC_INTERVAL_MS = 1000;
+
+const REQUEST_BURN_MS = 600;   // extra CPU per request
+// ==================
 
 function burnCPU(ms) {
   const end = Date.now() + ms;
@@ -10,21 +15,30 @@ function burnCPU(ms) {
   }
 }
 
-function burnInBackground() {
+// 🔁 Static background load (always running)
+function startStaticBurn() {
+  function loop() {
+    burnCPU(STATIC_BURN_MS);
+    setTimeout(loop, STATIC_INTERVAL_MS);
+  }
+  loop();
+}
+
+// ⚡ Extra burst per request
+function burnOnRequest() {
   setImmediate(() => {
-    burnCPU(AUTO_BURN_MS);
+    burnCPU(REQUEST_BURN_MS);
   });
 }
 
+startStaticBurn();
+
 const server = http.createServer((req, res) => {
   if (req.url === "/") {
+    burnOnRequest();
 
-    // background CPU load
-    burnInBackground();
-
-    // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello from OC3 1500\n");
+    res.end("Static CPU + Request burst active\n");
     return;
   }
 
@@ -33,5 +47,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log("CPU stress background server running on port 3000");
+  console.log("Hybrid CPU stress server running on port 3000");
 });
