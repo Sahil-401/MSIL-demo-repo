@@ -1,6 +1,6 @@
 const http = require("http");
 
-const AUTO_BURN_MS = 500; // 250 ms background CPU load per request
+const AUTO_BURN_MS = 500; // background CPU load per request
 
 function burnCPU(ms) {
   const end = Date.now() + ms;
@@ -17,21 +17,21 @@ function burnInBackground() {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.url === "/") {
-
-    // background CPU load
+  // Works for both /app and /app/
+  if (req.url === "/app" || req.url === "/app/") {
+    // background CPU load (like old logic)
     burnInBackground();
 
     // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello From OC3\n");
+    res.end("Hello From OC3 (running on /app)\n");
     return;
   }
 
-  res.writeHead(404);
+  res.writeHead(404, { "Content-Type": "text/plain" });
   res.end("Not found");
 });
 
 server.listen(3000, () => {
-  console.log("CPU stress background server running on port 3000");
+  console.log("CPU stress background server running on port 3000 (path: /app)");
 });
