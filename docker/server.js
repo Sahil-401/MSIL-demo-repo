@@ -1,11 +1,6 @@
 const http = require("http");
 
-// ===== CONFIG =====
-const STATIC_BURN_MS = 900;     // background constant CPU burn
-const STATIC_INTERVAL_MS = 1000;
-
-const REQUEST_BURN_MS = 600;   // extra CPU per request
-// ==================
+const AUTO_BURN_MS = 500; // 250 ms background CPU load per request
 
 function burnCPU(ms) {
   const end = Date.now() + ms;
@@ -15,37 +10,28 @@ function burnCPU(ms) {
   }
 }
 
-// 🔁 Static background load
-function startStaticBurn() {
-  function loop() {
-    burnCPU(STATIC_BURN_MS);
-    setTimeout(loop, STATIC_INTERVAL_MS);
-  }
-  loop();
+function burnInBackground() {
+  setImmediate(() => {
+    burnCPU(AUTO_BURN_MS);
+  });
 }
-
-// ⚡ Request burst
-function burnOnRequest() {
-  setImmediate(() => burnCPU(REQUEST_BURN_MS));
-}
-
-startStaticBurn();
 
 const server = http.createServer((req, res) => {
+  if (req.url === "/") {
 
-  // Works for both /app and /app/
-  if (req.url === "/app" || req.url === "/app/") {
-    burnOnRequest();
+    // background CPU load
+    burnInBackground();
 
+    // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Static CPU + Request burst active on /app\n");
+    res.end("Hello From OC3\n");
     return;
   }
 
-  res.writeHead(404, { "Content-Type": "text/plain" });
+  res.writeHead(404);
   res.end("Not found");
 });
 
 server.listen(3000, () => {
-  console.log("Hybrid CPU stress server running on port 3000 (path: /app)");
+  console.log("CPU stress background server running on port 3000");
 });
