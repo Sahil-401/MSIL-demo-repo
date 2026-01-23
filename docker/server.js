@@ -1,37 +1,34 @@
 const http = require("http");
+const os = require("os");
 
-const AUTO_BURN_MS = 500; // background CPU load per request
-
-function burnCPU(ms) {
-  const end = Date.now() + ms;
-  let x = 0;
-  while (Date.now() < end) {
-    x += Math.sqrt(Math.random() * 1000);
-  }
-}
-
-function burnInBackground() {
-  setImmediate(() => {
-    burnCPU(AUTO_BURN_MS);
-  });
-}
+let requestCount = 0;
 
 const server = http.createServer((req, res) => {
-  // Works for both /app and /app/
   if (req.url === "/app" || req.url === "/app/") {
-    // background CPU load (like old logic)
-    burnInBackground();
+    requestCount++;
 
-    // immediate response
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello From Cluster:1\n");
+    res.writeHead(200, { "Content-Type": "application/json" });
+
+    res.end(
+      JSON.stringify(
+        {
+          message: "Session Affinity Test",
+          hostname: os.hostname(), // POD name
+          pid: process.pid,
+          requestCountOnThisPod: requestCount,
+          time: new Date().toISOString(),
+        },
+        null,
+        2
+      )
+    );
     return;
   }
 
-  res.writeHead(404, { "Content-Type": "text/plain" });
-  res.end("Not found");
+  res.writeHead(404);
+  res.end("Not Found");
 });
 
 server.listen(3000, () => {
-  console.log("CPU stress background server running on port 3000 (path: /app)");
+  console.log("Running on port 3000, path /app");
 });
