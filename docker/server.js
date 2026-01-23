@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
 
     // immediate response
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello From OC3 (running on /app)\n");
+    res.end("Hello From Cluster:1\n");
     return;
   }
 
