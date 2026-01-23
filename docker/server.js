@@ -12,7 +12,7 @@ const server = http.createServer((req, res) => {
     res.end(
       JSON.stringify(
         {
-          message: "Session Affinity Test",
+          message: "Session Connectd with Cluster-2",
           hostname: os.hostname(), // POD name
           pid: process.pid,
           requestCountOnThisPod: requestCount,
