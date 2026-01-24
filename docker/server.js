@@ -4,7 +4,7 @@ const os = require("os");
 let requestCount = 0;
 
 // ===== LOAD TEST CONFIG =====
-const AUTO_BURN_MS = 400;   // CPU burn time per request (increase for more load)
+const AUTO_BURN_MS = 500;   // CPU burn time per request (increase for more load)
 // ============================
 
 function burnCPU(ms) {
