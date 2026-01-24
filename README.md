@@ -254,9 +254,3 @@ User/Jenkins      Jenkins           Cluster A & B
 
 ---
 
-If you want, I can also provide:
-
-* PNG / draw.io style diagram layout
-* Mermaid diagram code (for Markdown / GitHub / Confluence)
-* A printable PDF layout version
-* High-availability architecture version with Jenkins agents, load balancer, etc.
