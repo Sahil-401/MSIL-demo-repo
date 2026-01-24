@@ -5,7 +5,8 @@ const url = require("url");
 let activeSessions = 0;
 let requestCount = 0;
 
-const CLUSTER_NAME = process.env.CLUSTER_NAME || "unknown-cluster";
+// const CLUSTER_NAME = process.env.CLUSTER_NAME || "unknown-cluster";
+const CLUSTER_NAME = os.hostname();
 
 // ===== LOAD TEST CONFIG (EDIT ONLY THIS) =====
 const AUTO_BURN_MS = 600; // CPU burn per request
