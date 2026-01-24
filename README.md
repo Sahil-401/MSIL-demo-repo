@@ -15,6 +15,8 @@ This document describes the high‑level workflow of the Jenkins pipelines used 
 ---
 
 ## 1. DEV Pipeline Workflow
+## Dev Pipeline
+![Dev Pipeline](img/dev.png)
 
 **Purpose:** Build, test, and deploy a new application version to DEV on both clusters.
 
@@ -61,6 +63,9 @@ This document describes the high‑level workflow of the Jenkins pipelines used 
 
 ## 2. PROD Pipeline Workflow
 
+## Production Pipeline
+![Prod Pipeline](img/Prod.png)
+
 **Purpose:** Promote the tested DEV image to production.
 
 ### Steps
@@ -83,12 +88,16 @@ This document describes the high‑level workflow of the Jenkins pipelines used 
 
 ### Output
 
+## Application
+![Prod App](img/Prod-app.png)
+
 * Same validated image running in PROD on **both clusters**
 
 ---
 
 ## 3. Rollback Pipeline Workflow
-
+## Rollback Flow
+![Rollback Pipeline](img/Rollback.png)
 **Purpose:** Safely revert PROD to previous stable version in case of issues.
 
 ### Steps
@@ -149,13 +158,6 @@ Rollback Pipeline
 * ✅ Deployment verification
 
 ---
-
-If you want, I can also provide:
-
-* Architecture diagram
-* Sequence diagram
-* PDF‑ready version
-* Or a more detailed technical workflow version.
 
 ---
 
