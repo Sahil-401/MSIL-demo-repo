@@ -4,7 +4,7 @@ const os = require("os");
 let requestCount = 0;
 
 // ===== LOAD TEST CONFIG =====
-const AUTO_BURN_MS = 700;   // CPU burn time per request (increase for more load)
+const AUTO_BURN_MS = 400;   // CPU burn time per request (increase for more load)
 // ============================
 
 function burnCPU(ms) {
@@ -35,10 +35,7 @@ const server = http.createServer((req, res) => {
         {
           message: "Session connected with Cluster-1",
           hostname: os.hostname(), // POD name
-          pid: process.pid,
           requestCountOnThisPod: requestCount,
-          time: new Date().toISOString(),
-          cpuBurnMs: AUTO_BURN_MS
         },
         null,
         2
