@@ -7,19 +7,15 @@ let requestCount = 0;
 
 const CLUSTER_NAME = process.env.CLUSTER_NAME || "unknown-cluster";
 
-// ===== CPU LOAD CONFIG =====
-const AUTO_BURN_MS = parseInt(process.env.CPU_BURN_MS || "600", 10);
-const CONTINUOUS_BURN_MS = parseInt(process.env.CONTINUOUS_BURN_MS || "800", 10);
-// ===========================
-
-let continuousLoadEnabled = false;
-let continuousLoadTimer = null;
+// ===== LOAD TEST CONFIG (EDIT ONLY THIS) =====
+const AUTO_BURN_MS = 600; // CPU burn per request
+// ============================================
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// ---------- CPU BURN ----------
+// ===== OLD LOAD TEST LOGIC (UNCHANGED) =====
 function burnCPU(ms) {
   const end = Date.now() + ms;
   let x = 0;
@@ -33,39 +29,14 @@ function burnInBackground() {
     burnCPU(AUTO_BURN_MS);
   });
 }
+// ===========================================
 
-// Continuous CPU load
-function startContinuousLoad() {
-  if (continuousLoadEnabled) return;
-
-  continuousLoadEnabled = true;
-
-  const loop = () => {
-    if (!continuousLoadEnabled) return;
-
-    burnCPU(CONTINUOUS_BURN_MS);
-    continuousLoadTimer = setImmediate(loop);
-  };
-
-  loop();
-}
-
-function stopContinuousLoad() {
-  continuousLoadEnabled = false;
-  if (continuousLoadTimer) {
-    clearImmediate(continuousLoadTimer);
-    continuousLoadTimer = null;
-  }
-}
-
-// ---------- SERVER ----------
 const server = http.createServer(async (req, res) => {
   const parsed = url.parse(req.url, true);
 
-  // 🔥 CPU burn on every request
-  burnInBackground();
-
-  // ---------- MAIN APP ----------
+  // -------------------
+  // Normal endpoint
+  // -------------------
   if (parsed.pathname === "/app" || parsed.pathname === "/app/") {
     requestCount++;
 
@@ -74,7 +45,7 @@ const server = http.createServer(async (req, res) => {
       JSON.stringify(
         {
           message: "Session connected with Cluster-1",
-          hostname: os.hostname(),
+          hostname: os.hostname(), // POD name
           pid: process.pid,
           requestCountOnThisPod: requestCount,
         },
@@ -85,17 +56,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ---------- LOAD CONTROL ----------
-  if (parsed.pathname === "/load/start") {
-    startContinuousLoad();
+  // -------------------
+  // Load test endpoint
+  // -------------------
+  if (parsed.pathname === "/app/load") {
+    requestCount++;
+
+    // 🔥 CPU load only here
+    burnInBackground();
 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify(
         {
-          status: "started",
-          continuousLoad: true,
-          burnMs: CONTINUOUS_BURN_MS,
+          message: "Session connected with Cluster-1",
+          hostname: os.hostname(),
+          requestCountOnThisPod: requestCount,
         },
         null,
         2
@@ -104,24 +80,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (parsed.pathname === "/load/stop") {
-    stopContinuousLoad();
-
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify(
-        {
-          status: "stopped",
-          continuousLoad: false,
-        },
-        null,
-        2
-      )
-    );
-    return;
-  }
-
-  // ---------- HOLD SESSION ----------
+  // -------------------
+  // Hold endpoint
+  // -------------------
   if (parsed.pathname === "/app/hold") {
     const seconds = parseInt(parsed.query.seconds || "60", 10);
     activeSessions++;
@@ -165,7 +126,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ---------- SESSION COUNT ----------
+  // -------------------
+  // Session count
+  // -------------------
   if (parsed.pathname === "/app/sessions") {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ cluster: CLUSTER_NAME, activeSessions }));
@@ -178,6 +141,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(3000, () => {
   console.log(
-    `App running on port 3000 (cluster=${CLUSTER_NAME}, requestBurn=${AUTO_BURN_MS}ms, continuousBurn=${CONTINUOUS_BURN_MS}ms)`
+    `App running on port 3000 | Normal: /app | Load: /app/load | CPU=${AUTO_BURN_MS}ms`
   );
 });
