@@ -46,7 +46,6 @@ const server = http.createServer(async (req, res) => {
         {
           message: "Session connected with Cluster-1",
           hostname: os.hostname(), // POD name
-          pid: process.pid,
           requestCountOnThisPod: requestCount,
         },
         null,
