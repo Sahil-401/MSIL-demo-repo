@@ -4,7 +4,7 @@ const url = require("url");
 const { createClient } = require("redis");
 
 let requestCount = 0;
-const CLUSTER_NAME = os.hostname();
+const CLUSTER_NAME = "Cluster-2";
 
 const AUTO_BURN_MS = 600;
 
