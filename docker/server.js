@@ -45,7 +45,7 @@ const server = http.createServer(async (req, res) => {
     res.end(
       JSON.stringify(
         {
-          message: "Session connected with Cluster-2",
+          message: "Session connected with Cluster-1",
           hostname: os.hostname(), // POD name
           requestCountOnThisPod: requestCount,
         },
@@ -69,7 +69,7 @@ const server = http.createServer(async (req, res) => {
     res.end(
       JSON.stringify(
         {
-          message: "Session connected with Cluster-2",
+          message: "Session connected with Cluster-1",
           hostname: os.hostname(),
           requestCountOnThisPod: requestCount,
         },
@@ -96,7 +96,7 @@ const server = http.createServer(async (req, res) => {
     res.write(
       JSON.stringify(
         {
-          message: "Session started with Cluster-2",
+          message: "Session started with Cluster-1",
           cluster: CLUSTER_NAME,
           pod: os.hostname(),
           activeSessions,
